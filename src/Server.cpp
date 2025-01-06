@@ -1,9 +1,20 @@
 #include <iostream>
 #include <string>
+#include <unordered_set>
 
 bool match_pattern(const std::string& input_line, const std::string& pattern) {
+    std::unordered_set<char> digits({'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
     if (pattern.length() == 1) {
         return input_line.find(pattern) != std::string::npos;
+    }
+    else if (pattern == "\\d"){
+        for(char curr : input_line){
+            if (digits.find(curr) != digits.end()){
+                return true;
+            }
+        }
+
+        return false;
     }
     else {
         throw std::runtime_error("Unhandled pattern " + pattern);
