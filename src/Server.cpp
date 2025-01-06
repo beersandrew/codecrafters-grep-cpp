@@ -7,9 +7,11 @@
 bool match_pattern(const std::string& input_line, const std::string& pattern) {
 
     std::unordered_set<char> positiveMatches;
+    std::unordered_set<char> negativeMatches;
 
     bool previousCharSlash = false;
     bool inBrackets = false;
+    bool isNegative = false;
     for(char inputChar : pattern){
         if (inputChar == '\\'){
             previousCharSlash = true;
@@ -35,7 +37,18 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
                 }
 
                 if (inBrackets){
-                    positiveMatches.insert(inputChar);
+
+                    if (inputChar == '^'){
+                        isNegative = true;
+                    }
+                    else {
+                        if (isNegative){
+                            negativeMatches.insert(inputChar);
+                        }
+                        else {
+                            positiveMatches.insert(inputChar);
+                        }
+                    }
                 }
             }
             previousCharSlash = false;
@@ -50,6 +63,16 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
             if (positiveMatches.find(inputChar) != positiveMatches.end()){
                 return true;
             }
+        }
+
+        for(char inputChar : input_line){
+            if (negativeMatches.find(inputChar) != positiveMatches.end()){
+                return false;
+            }
+        }
+
+        if (!negativeMatches.empty()){
+            return true;
         }
 
         return false;
