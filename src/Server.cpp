@@ -2,41 +2,52 @@
 #include <string>
 #include <unordered_set>
 
+#include "matchHelper.h"
+
 bool match_pattern(const std::string& input_line, const std::string& pattern) {
-    const std::unordered_set<char> digits({'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
-    const std::unordered_set<char> uppercaseLetters({'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-                                               'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-                                               'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'});
-    const std::unordered_set<char> lowercaseLetters({'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-                                               'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-                                               'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'});
+
+    std::unordered_set<char> positiveMatches;
+
+    bool previousCharSlash = false;
+    bool inBrackets = false;
+    for(char inputChar : pattern){
+        if (inputChar == '\\'){
+            previousCharSlash = true;
+        }
+        else {
+            if (previousCharSlash){
+                if (inputChar == 'd'){
+                    positiveMatches.insert(digits.begin(), digits.end());
+                }
+                else if (inputChar == 'w'){
+                    positiveMatches.insert(digits.begin(), digits.end());
+                    positiveMatches.insert(uppercaseLetters.begin(), uppercaseLetters.end());
+                    positiveMatches.insert(lowercaseLetters.begin(), lowercaseLetters.end());
+                    positiveMatches.insert('_');
+                }
+            }
+            else {
+                if (inputChar == '['){
+                    inBrackets = true;
+                }
+                else if (inputChar == ']'){
+                    inBrackets = false;
+                }
+
+                if (inBrackets){
+                    positiveMatches.insert(inputChar);
+                }
+            }
+            previousCharSlash = false;
+        }
+    }
+
     if (pattern.length() == 1) {
         return input_line.find(pattern) != std::string::npos;
     }
-    else if (pattern == "\\d"){
-        for(char curr : input_line){
-            if (digits.find(curr) != digits.end()){
-                return true;
-            }
-        }
-
-        return false;
-    }
-    else if (pattern == "\\w"){
-        for(char curr : input_line){
-            if (digits.find(curr) != digits.end()){
-                return true;
-            }
-
-            if (uppercaseLetters.find(curr) != uppercaseLetters.end()){
-                return true;
-            }
-
-            if (lowercaseLetters.find(curr) != lowercaseLetters.end()){
-                return true;
-            }
-
-            if (curr == '_'){
+    else if (!positiveMatches.empty()){
+        for(char inputChar : input_line){
+            if (positiveMatches.find(inputChar) != positiveMatches.end()){
                 return true;
             }
         }
