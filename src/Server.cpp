@@ -59,6 +59,20 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
 
         return true;
     }
+    else if (pattern[pattern.size() - 1] == '$'){
+        for(int i = 0; i < inputLine.size(); i++){
+            if (i == pattern.size() - 2){
+                return true;
+            }
+            else{
+                if (pattern[pattern.size() - i - 2] != inputLine[inputLine.size() - i - 1]){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
     else{
         size_t patternIndex = 0;
 
