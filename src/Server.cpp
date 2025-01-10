@@ -76,7 +76,8 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
     else{
         size_t patternIndex = 0;
 
-        for(char inputChar : inputLine) {
+        for(int i = 0; i < inputLine.size(); ++i) {
+            char inputChar = inputLine[i];
             if (patternIndex == pattern.size()) {
                 return true;
             }
@@ -85,6 +86,18 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
                 if (pattern[patternIndex + 1] == 'd') {
                     if (digits.find(inputChar) != digits.end()) {
                         patternIndex += 2;
+                        if (pattern[patternIndex] == '+'){
+                            if (i == inputLine.size() - 1){
+                                continue;
+                            }
+                            int increment = i + 1;
+                            while (digits.find(inputLine[increment]) != digits.end()){
+                                increment++;
+                            }
+
+                            i = increment - 1; // will increment in the for loop again, this is weird
+                            patternIndex++;
+                        }
                         continue;
                     }
                 } else if (pattern[patternIndex + 1] == 'w') {
@@ -93,12 +106,40 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
                         lowercaseLetters.find(inputChar) != lowercaseLetters.end() ||
                         inputChar == '_') {
                         patternIndex += 2;
+
+                        if (pattern[patternIndex] == '+'){
+                            if (i == inputLine.size() - 1){
+                                continue;
+                            }
+                            int increment = i + 1;
+                            while (digits.find(inputLine[increment]) != digits.end() ||
+                                   uppercaseLetters.find(inputLine[increment]) != uppercaseLetters.end() ||
+                                   lowercaseLetters.find(inputLine[increment]) != lowercaseLetters.end() ||
+                                    inputLine[increment] == '_'){
+                                increment++;
+                            }
+
+                            i = increment - 1; // will increment in the for loop again, this is weird
+                            patternIndex++;
+                        }
                         continue;
                     }
                 }
             } else {
                 if (pattern[patternIndex] == inputChar) {
                     patternIndex++;
+                    if (pattern[patternIndex] == '+'){
+                        if (i == inputLine.size() - 1){
+                            continue;
+                        }
+                        int increment = i + 1;
+                        while (inputLine[increment] == inputChar){
+                            increment++;
+                        }
+
+                        i = increment - 1; // will increment in the for loop again, this is weird
+                        patternIndex++;
+                    }
                     continue;
                 }
 
