@@ -47,6 +47,18 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
             }
         }
     }
+    else if (pattern[0] == '^'){
+        for(int i = 0; i < inputLine.size(); ++i) {
+            if (i + 1 == pattern.size()){
+                return true;
+            }
+            if (inputLine[i] != pattern[i + 1]){
+                return false;
+            }
+        }
+
+        return true;
+    }
     else{
         size_t patternIndex = 0;
 
