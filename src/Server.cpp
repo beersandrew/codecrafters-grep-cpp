@@ -125,7 +125,13 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
                         continue;
                     }
                 }
-            } else {
+            }
+            else if (pattern[patternIndex] == '?'){
+                patternIndex++;
+                i--; // reset loop above
+                continue;
+            }
+            else {
                 if (pattern[patternIndex] == inputChar) {
                     patternIndex++;
                     if (pattern[patternIndex] == '+'){
@@ -143,6 +149,14 @@ bool match_pattern(const std::string& inputLine, const std::string& pattern) {
                     continue;
                 }
 
+            }
+
+            if (patternIndex != pattern.size() - 1){
+                if (pattern[patternIndex + 1] == '?'){
+                    patternIndex += 2;
+                    i--; // reset the loop
+                    continue;
+                }
             }
 
             patternIndex = 0;
