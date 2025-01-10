@@ -4,7 +4,7 @@
 
 #include "matchHelper.h"
 
-bool match_pattern(const std::string& input_line, const std::string& pattern) {
+bool match_pattern(const std::string& inputLine, const std::string& pattern) {
 
     std::unordered_set<char> positiveMatches;
     std::unordered_set<char> negativeMatches;
@@ -12,74 +12,82 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
     bool previousCharSlash = false;
     bool inBrackets = false;
     bool isNegative = false;
-    for(char inputChar : pattern){
-        if (inputChar == '\\'){
-            previousCharSlash = true;
-        }
-        else {
-            if (previousCharSlash){
-                if (inputChar == 'd'){
-                    positiveMatches.insert(digits.begin(), digits.end());
-                }
-                else if (inputChar == 'w'){
-                    positiveMatches.insert(digits.begin(), digits.end());
-                    positiveMatches.insert(uppercaseLetters.begin(), uppercaseLetters.end());
-                    positiveMatches.insert(lowercaseLetters.begin(), lowercaseLetters.end());
-                    positiveMatches.insert('_');
-                }
+
+
+    if (pattern[0] == '['){
+        for(int i = 1; i < pattern.size(); ++i){
+            char patternChar = pattern[i];
+            if (patternChar == '^'){
+                isNegative = true;
             }
             else {
-                if (inputChar == '['){
-                    inBrackets = true;
+                if (isNegative){
+                    negativeMatches.insert(patternChar);
                 }
-                else if (inputChar == ']'){
-                    inBrackets = false;
-                }
-
-                if (inBrackets){
-
-                    if (inputChar == '^'){
-                        isNegative = true;
-                    }
-                    else {
-                        if (isNegative){
-                            negativeMatches.insert(inputChar);
-                        }
-                        else {
-                            positiveMatches.insert(inputChar);
-                        }
-                    }
+                else {
+                    positiveMatches.insert(patternChar);
                 }
             }
-            previousCharSlash = false;
         }
-    }
 
-    if (pattern.length() == 1) {
-        return input_line.find(pattern) != std::string::npos;
-    }
-    else if (!positiveMatches.empty()){
-        for(char inputChar : input_line){
-            if (positiveMatches.find(inputChar) != positiveMatches.end()){
+        for(char inputChar : inputLine) {
+
+            if (!negativeMatches.empty()){
+                if (negativeMatches.find(inputChar) != negativeMatches.end()){
+                    return false;
+                }
                 return true;
             }
-        }
 
-        for(char inputChar : input_line){
-            if (negativeMatches.find(inputChar) != positiveMatches.end()){
+            if (!positiveMatches.empty()){
+                if (positiveMatches.find(inputChar) != positiveMatches.end()){
+                    return true;
+                }
                 return false;
             }
         }
+    }
+    else{
+        size_t patternIndex = 0;
 
-        if (!negativeMatches.empty()){
+        for(char inputChar : inputLine) {
+            if (patternIndex == pattern.size()) {
+                return true;
+            }
+
+            if (pattern[patternIndex] == '\\') {
+                if (pattern[patternIndex + 1] == 'd') {
+                    if (digits.find(inputChar) != digits.end()) {
+                        patternIndex += 2;
+                        continue;
+                    }
+                } else if (pattern[patternIndex + 1] == 'w') {
+                    if (digits.find(inputChar) != digits.end() ||
+                        uppercaseLetters.find(inputChar) != uppercaseLetters.end() ||
+                        lowercaseLetters.find(inputChar) != lowercaseLetters.end() ||
+                        inputChar == '_') {
+                        patternIndex += 2;
+                        continue;
+                    }
+                }
+            } else {
+                if (pattern[patternIndex] == inputChar) {
+                    patternIndex++;
+                    continue;
+                }
+
+            }
+
+            patternIndex = 0;
+        }
+
+        if (patternIndex == pattern.size()){
             return true;
         }
 
         return false;
     }
-    else {
-        throw std::runtime_error("Unhandled pattern " + pattern);
-    }
+
 }
 
 int main(int argc, char* argv[]) {
